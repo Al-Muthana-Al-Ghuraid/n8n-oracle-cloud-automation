@@ -1,0 +1,2 @@
+# Nightly n8n backup at 03:30 server time (Asia/Riyadh). Install with: crontab -e
+30 3 * * * /home/ubuntu/n8n/backup.sh >> /home/ubuntu/n8n/backups/backup.log 2>&1

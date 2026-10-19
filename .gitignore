@@ -1,0 +1,14 @@
+# Secrets and private data: never commit
+.env
+*.env
+!.env.example
+backups/
+*.tgz
+*.pem
+oracle_n8n
+oracle_n8n.pub
+client_secret*.json
+
+# Raw (unsanitized) workflow exports
+raw/
+*_raw.json

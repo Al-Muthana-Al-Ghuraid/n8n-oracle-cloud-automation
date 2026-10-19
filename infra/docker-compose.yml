@@ -1,0 +1,44 @@
+# n8n + Cloudflare Tunnel on Oracle Cloud (ARM)
+# Replace n8n.example.com with your own hostname.
+# Lives on the server at ~/n8n/docker-compose.yml
+# Secrets come from ~/n8n/.env (never commit it): N8N_ENCRYPTION_KEY, TUNNEL_TOKEN
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    restart: unless-stopped
+    environment:
+      - N8N_HOST=n8n.example.com
+      - N8N_PROTOCOL=https
+      - N8N_PORT=5678
+      - WEBHOOK_URL=https://n8n.example.com/
+      - N8N_PROXY_HOPS=1
+      - GENERIC_TIMEZONE=Asia/Riyadh
+      - TZ=Asia/Riyadh
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - EXECUTIONS_DATA_PRUNE=true
+      - EXECUTIONS_DATA_MAX_AGE=336
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - n8n_net
+    # No "ports:" on purpose: n8n is only reachable through the tunnel.
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    depends_on:
+      - n8n
+    networks:
+      - n8n_net
+
+volumes:
+  n8n_data:
+
+networks:
+  n8n_net:
